@@ -58,7 +58,7 @@ void InitEPwm2()
 	EPwm2Regs.CMPA.half.CMPA = 0;
 	
 	   // Set actions
-	EPwm2Regs.AQCTLA.bit.ZRO = AQ_SET;             // Set PWM1A on Zero
+	EPwm2Regs.AQCTLA.bit.CBD = AQ_SET;             // Set PWM1A on Zero
 	EPwm2Regs.AQCTLA.bit.CAD = AQ_CLEAR;
 	
 	
@@ -68,7 +68,7 @@ void InitEPwm2()
 	EALLOW;
 	EPwm2Regs.HRCNFG.bit.CTLMODE = HR_CMP;
 	EPwm2Regs.HRCNFG.bit.AUTOCONV = HR_DISABLE;
-	EPwm2Regs.HRCNFG.bit.EDGMODE = HR_FEP;
+	EPwm2Regs.HRCNFG.bit.EDGMODE = 0;
 	EDIS;
 
    // Active Low PWMs - Setup Deadband
@@ -103,7 +103,7 @@ void InitEPwm3()
 	
 	   // Set actions
 	EPwm3Regs.AQCTLA.bit.CBD = AQ_SET;             // Set PWM1A on Zero
-	EPwm3Regs.AQCTLA.bit.CAD = AQ_CLEAR;
+	EPwm3Regs.AQCTLA.bit.ZRO = AQ_CLEAR;
 	
 	
 	EPwm3Regs.AQCTLB.bit.CAU = AQ_NO_ACTION;          // Set PWM1A on Zero
@@ -112,7 +112,7 @@ void InitEPwm3()
 	EALLOW;
 	EPwm3Regs.HRCNFG.bit.CTLMODE = HR_CMP;
 	EPwm3Regs.HRCNFG.bit.AUTOCONV = HR_DISABLE;
-	EPwm3Regs.HRCNFG.bit.EDGMODE = HR_FEP;
+	EPwm3Regs.HRCNFG.bit.EDGMODE = 0;
 	EDIS;
 
    // Active Low PWMs - Setup Deadband

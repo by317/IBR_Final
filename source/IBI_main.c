@@ -37,18 +37,18 @@
 #define MIN_OPERATING_VOLTAGE 491520 //Minimum Operating Voltage of 15V
 #define MIN_STARTUP_VOLTAGE 655360 //Minimum Startup Voltage of 20V
 //#define MAX_OPERATING_VOLTAGE 1474560 //Maximum Operating Voltage of 45V
-#define INITIAL_CURRENT_LIMIT	13
+#define INITIAL_CURRENT_LIMIT	3
 
 #define MPPT_UPDATE_PERIOD_MS	500
 #define MAX_POWER_SAMPLES		20
 #define INITIAL_POWER_SAMPLES	10
 #define INITIAL_MPPT_STEP_SIZE	_IQ15(0.4)
-#define INITIAL_HICCUP_CURRENT_LIMIT	0.5
+#define INITIAL_HICCUP_CURRENT_LIMIT	15
 #define INITIAL_MAX_VOLTAGE		50
 #define INITIAL_MAX_OPERATING_VOLTAGE	48
 
 #define TMAX	1370
-#define MIN_ON	400
+#define MIN_ON	40000
 
 #define OUT_MAX 0x599A
 #define DELAY_MAX 45876 //(+1.4)
@@ -186,9 +186,9 @@ void main()
 	InitEPwm2Gpio();
 	InitEPwm3Gpio();
 	ERTM;
+	y = 5;
 	for(;;)
 	{
-////		Bus_Voltage_Q15 = ((long int) AdcResult.ADCRESULT1*VBUS_SCALE);
 		if(delay_flag)
 		{
 			ms_delay(10000);
@@ -279,6 +279,7 @@ interrupt void pwm_int()
 	Output_Over_Voltage = GpioDataRegs.GPADAT.bit.GPIO17;
 	if (Input_Voltage_Q15 > Max_Voltage_Q15 || Output_Over_Voltage)
 	{
+		y = 4;
 		Vin_reference_Q15 = High_Voltage_Reference_Q15; //100V
 		startup_flag = 0;
 		delay_flag = 1;
@@ -288,12 +289,14 @@ interrupt void pwm_int()
 	{
 		if (Input_Current_Q15 > Hiccup_Current_Limit_Q15)
 		{
+			y = 3;
 			Vin_reference_Q15 = High_Voltage_Reference_Q15;
 			startup_flag = 0;
 		}
 	}
 	if (Input_Current_Q15 > Current_Limit_Q15)
 	{
+		y = 2;
 		Vin_reference_Q15 = High_Voltage_Reference_Q15;
 		startup_flag = 0;
 	}
@@ -346,20 +349,16 @@ interrupt void pwm_int()
 	err_delay1 = Vin_err_Q15;
 
 	duty_output = ((long long int) v_comp_out >> 5);
-	//duty = ((unsigned int) duty_output);
+	duty = ((unsigned int) duty_output);
+
 
 	EPwm2Regs.TBPRD = Period_Table[0][duty >> 1];
 	EPwm3Regs.TBPRD = Period_Table[0][duty >> 1];
 
 	EPwm2Regs.CMPA.half.CMPA = Period_Table[1][duty >> 1] + deadtime_after_Q1_off;
-	//EPwm2Regs.CMPB = EPwm2Regs.TBPRD - (EPwm2Regs.CMPA.half.CMPA >> 1) + Sample_Advance;
 	EPwm3Regs.CMPB = Period_Table[1][duty >> 1];
 
-	if (EPwm3Regs.CMPB <= deadtime_after_Q2_off)
-	{
-		EPwm3Regs.CMPB = deadtime_after_Q2_off + 1;
-	}
-	EPwm3Regs.CMPA.half.CMPA = deadtime_after_Q2_off;
+	EPwm2Regs.CMPB = EPwm2Regs.TBPRD - deadtime_after_Q2_off;
 
 	EINT;
 	EPwm2Regs.ETCLR.bit.INT = 0x1;  			//Clear the Interrupt Flag
@@ -381,6 +380,9 @@ void pwm_setup()
 	GpioCtrlRegs.GPADIR.bit.GPIO17 = 0;
 	GpioCtrlRegs.GPAPUD.bit.GPIO16 = 1;
 	GpioCtrlRegs.GPAPUD.bit.GPIO17 = 1;
+	GpioCtrlRegs.GPACTRL.bit.QUALPRD2 = 0x2F;
+	GpioCtrlRegs.GPAQSEL2.bit.GPIO16 = 0x2;
+	GpioCtrlRegs.GPAQSEL2.bit.GPIO17 = 0x2;
 	EDIS;
 
 	EPwm2Regs.ETSEL.bit.INTEN = 0x1;
