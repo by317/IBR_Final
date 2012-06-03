@@ -8,12 +8,12 @@
 #define VIN_SCALE_INIT	430		//Scaling for Q15 Format
 #define VIN_OFFSET_INIT 10
 #define VBUS_SCALE_INIT	667		//Scaling for Q15 Format
-#define	I_SCALE_INIT	149		//Scaling for Q15 Format
+#define	I_SCALE_INIT	100		//Scaling for Q15 Format
 #define I_OFFSET_INIT		60
 #define wz_MRADS	_IQ15(0.025133)
 #define wz2_MRADS	_IQ15(631)
 #define zeta 0.3
-#define K	102
+#define K	50
 
 #define GLOBAL_Q	15
 
@@ -37,18 +37,18 @@
 #define MIN_OPERATING_VOLTAGE 491520 //Minimum Operating Voltage of 15V
 #define MIN_STARTUP_VOLTAGE 655360 //Minimum Startup Voltage of 20V
 //#define MAX_OPERATING_VOLTAGE 1474560 //Maximum Operating Voltage of 45V
-#define INITIAL_CURRENT_LIMIT	3
+#define INITIAL_CURRENT_LIMIT	15
 
 #define MPPT_UPDATE_PERIOD_MS	500
 #define MAX_POWER_SAMPLES		20
 #define INITIAL_POWER_SAMPLES	10
 #define INITIAL_MPPT_STEP_SIZE	_IQ15(0.4)
-#define INITIAL_HICCUP_CURRENT_LIMIT	15
+#define INITIAL_HICCUP_CURRENT_LIMIT	5
 #define INITIAL_MAX_VOLTAGE		50
 #define INITIAL_MAX_OPERATING_VOLTAGE	48
 
-#define TMAX	1370
-#define MIN_ON	40000
+#define TMAX	2000
+#define MIN_ON	500
 
 #define OUT_MAX 0x599A
 #define DELAY_MAX 45876 //(+1.4)
@@ -191,7 +191,7 @@ void main()
 	{
 		if(delay_flag)
 		{
-			ms_delay(10000);
+			ms_delay(1000);
 			delay_flag = 0;
 		}
 	}
@@ -357,6 +357,8 @@ interrupt void pwm_int()
 
 	EPwm2Regs.CMPA.half.CMPA = Period_Table[1][duty >> 1] + deadtime_after_Q1_off;
 	EPwm3Regs.CMPB = Period_Table[1][duty >> 1];
+
+	EPwm2Regs.DBRED = deadtime_after_Q2_off;
 
 	EPwm2Regs.CMPB = EPwm2Regs.TBPRD - deadtime_after_Q2_off;
 

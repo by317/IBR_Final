@@ -58,7 +58,7 @@ void InitEPwm2()
 	EPwm2Regs.CMPA.half.CMPA = 0;
 	
 	   // Set actions
-	EPwm2Regs.AQCTLA.bit.CBD = AQ_SET;             // Set PWM1A on Zero
+	EPwm2Regs.AQCTLA.bit.ZRO = AQ_SET;             // Set PWM1A on Zero
 	EPwm2Regs.AQCTLA.bit.CAD = AQ_CLEAR;
 	
 	
@@ -72,9 +72,9 @@ void InitEPwm2()
 	EDIS;
 
    // Active Low PWMs - Setup Deadband
-	EPwm2Regs.DBCTL.bit.OUT_MODE = DB_DISABLE;
+	EPwm2Regs.DBCTL.bit.OUT_MODE = 0x2;
 	EPwm2Regs.DBCTL.bit.POLSEL = DB_ACTV_HIC;
-	EPwm2Regs.DBCTL.bit.IN_MODE = DBA_RED_DBB_FED;
+	EPwm2Regs.DBCTL.bit.IN_MODE = DBA_ALL;
 	EPwm2Regs.DBRED = DB_RED;
 	EPwm2Regs.DBFED = DB_FED;
 
